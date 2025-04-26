@@ -103,14 +103,11 @@
             background-color: #28a745;
         }
         #shareButton {
-            background-color: #FEE500;
-            color: #3C1E1E;
+            background-color: #4267B2;
+            color: white;
         }
     </style>
-    <!-- 카카오 SDK 추가 -->
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.4.0/kakao.min.js" 
-            integrity="sha384-mXVrIX2T/Kszp6Z0aEWaA8Nm7J6/ZeWXbL8UpGRjKwWe56Srd/iyNmWMBhcItAjH" 
-            crossorigin="anonymous"></script>
+    <!-- 카카오 SDK 제거 - Web Share API 사용 -->
 </head>
 <body>
     <div class="container">
@@ -204,7 +201,7 @@
                 <p id="resultText"></p>
                 <div>
                     <button id="copyButton" class="button" onclick="copyText()">복사하기</button>
-                    <button id="shareButton" class="button" onclick="shareToKakao()">카카오톡 공유하기</button>
+                    <button id="shareButton" class="button" onclick="shareContent()">공유하기</button>
                 </div>
             </div>
         </div>
@@ -215,18 +212,11 @@
     </div>
 
     <script>
-        // 카카오 초기화
+        // 페이지 로드 시 현재 시간 설정
         window.onload = function() {
             setCurrentDateTime('para-time');
             setCurrentDateTime('trouble-time');
             setCurrentDateTime('trouble-complete');
-            
-            // 카카오 초기화 - 여기에 JavaScript 키를 입력하세요
-            if (typeof Kakao !== 'undefined') {
-                // 여기에 발급받은 JavaScript 앱 키를 넣으세요
-                Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); 
-                console.log(Kakao.isInitialized());
-            }
         };
         
         // 현재 시간 설정 함수
@@ -347,50 +337,36 @@
                 });
         }
         
-        // 카카오톡 공유하기 함수
-        function shareToKakao() {
+        // 공유하기 함수
+        function shareContent() {
             const text = document.getElementById('resultText').innerText;
+            const title = 'ESMI2 JF2 공유 내용';
             
-            // 카카오 SDK가 있는지 확인
-            if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-                // 카카오톡 공유하기 API 사용
-                Kakao.Share.sendDefault({
-                    objectType: 'text',
-                    text: text,
-                    buttonTitle: 'ESMI2 JF2 공유 내용 보기',
-                    link: {
-                        // 원하는 URL 설정
-                        mobileWebUrl: window.location.href,
-                        webUrl: window.location.href
-                    }
+            // Web Share API 지원 확인
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text
+                })
+                .then(() => {
+                    console.log('공유 성공');
+                })
+                .catch((error) => {
+                    console.log('공유 실패:', error);
+                    // 공유 실패 시 클립보드에 복사
+                    fallbackToCopy(text);
                 });
             } else {
-                // 카카오 SDK 미로드 시 대체 방법
-                fallbackShare(text);
+                // Web Share API를 지원하지 않는 경우 클립보드에 복사
+                fallbackToCopy(text);
             }
         }
         
-        // 대체 공유 방법
-        function fallbackShare(text) {
-            // 클립보드에 복사
+        // 클립보드 복사 대체 방법
+        function fallbackToCopy(text) {
             navigator.clipboard.writeText(text)
                 .then(() => {
-                    alert('텍스트가 클립보드에 복사되었습니다. 카카오톡에 붙여넣기 하세요.');
-                    
-                    // 카카오톡 앱 열기 시도 (모바일)
-                    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                        // 딥링크를 사용하여 카카오톡 앱 열기
-                        location.href = 'kakaotalk://';
-                        
-                        // 앱이 안 열릴 경우 스토어로 이동하는 타임아웃 설정
-                        setTimeout(function() {
-                            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                                location.href = 'https://apps.apple.com/kr/app/kakaotalk/id362057947';
-                            } else {
-                                location.href = 'market://details?id=com.kakao.talk';
-                            }
-                        }, 2000);
-                    }
+                    alert('텍스트가 클립보드에 복사되었습니다.');
                 })
                 .catch(err => {
                     console.error('클립보드 복사 실패:', err);
