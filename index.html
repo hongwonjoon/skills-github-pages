@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESMI2 JF2 파라변경/부동내역 공유 양식</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4a4a4a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-container {
+            display: flex;
+            background-color: #e0e0e0;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab.active {
+            background-color: white;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .form {
+            display: none;
+        }
+        .form.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .button {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #5a5a5a;
+        }
+        .footer {
+            text-align: right;
+            padding: 10px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        #copyButton {
+            margin-right: 10px;
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ESMI2 JF2 파라변경이력 부동내역 추출기</h1>
+            <p>Parameter 변경이력 및 부동&작업내역 자동 양식 생성</p>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('parameterForm')">Para/IP 변경공유</div>
+            <div class="tab" onclick="switchTab('troubleForm')">부동내역 공유</div>
+        </div>
+        
+        <div class="form-container">
+            <!-- 파라미터 변경 폼 -->
+            <div id="parameterForm" class="form active">
+                <div class="form-group">
+                    <label for="para-machine">1. 호기 :</label>
+                    <input type="text" id="para-machine" placeholder="예: 3-5">
+                </div>
+                <div class="form-group">
+                    <label for="para-process">2. 공정 :</label>
+                    <input type="text" id="para-process" placeholder="공정명 입력">
+                </div>
+                <div class="form-group">
+                    <label for="para-time">3. 변경시간 :</label>
+                    <input type="datetime-local" id="para-time">
+                </div>
+                <div class="form-group">
+                    <label for="para-parameter">4. 변경Para :</label>
+                    <input type="text" id="para-parameter" placeholder="변경 파라미터 입력">
+                </div>
+                <div class="form-group">
+                    <label for="para-before">5. 이전값 :</label>
+                    <input type="text" id="para-before" placeholder="이전 값 입력">
+                </div>
+                <div class="form-group">
+                    <label for="para-after">6. 변경값 :</label>
+                    <input type="text" id="para-after" placeholder="변경 값 입력">
+                </div>
+                <div class="form-group">
+                    <label for="para-worker">7. 변경자 :</label>
+                    <input type="text" id="para-worker" placeholder="작업자 이름">
+                </div>
+                <div class="form-group">
+                    <label for="para-reason">8. 변경사유 :</label>
+                    <textarea id="para-reason" placeholder="변경 사유 입력"></textarea>
+                </div>
+                <button class="button" onclick="generateParameterText()">양식 생성하기</button>
+            </div>
+            
+            <!-- 부동내역 폼 -->
+            <div id="troubleForm" class="form">
+                <div class="form-group">
+                    <label for="trouble-type">종류 :</label>
+                    <select id="trouble-type">
+                        <option value="부동">부동</option>
+                        <option value="작업">작업</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trouble-machine">호기 :</label>
+                    <input type="text" id="trouble-machine" placeholder="예: 3-5">
+                </div>
+                <div class="form-group">
+                    <label for="trouble-process">공정 :</label>
+                    <input type="text" id="trouble-process" placeholder="공정명 입력">
+                </div>
+                <div class="form-group">
+                    <label for="trouble-time">발생시간 :</label>
+                    <input type="datetime-local" id="trouble-time">
+                </div>
+                <div class="form-group">
+                    <label for="trouble-complete">조치완료 :</label>
+                    <input type="datetime-local" id="trouble-complete">
+                </div>
+                <div class="form-group">
+                    <label for="trouble-worker">작업자 :</label>
+                    <input type="text" id="trouble-worker" placeholder="작업자 이름">
+                </div>
+                <div class="form-group">
+                    <label for="trouble-problem">현상 :</label>
+                    <textarea id="trouble-problem" placeholder="현상 입력"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="trouble-action">조치 :</label>
+                    <textarea id="trouble-action" placeholder="조치 내용 입력"></textarea>
+                </div>
+                <button class="button" onclick="generateTroubleText()">양식 생성하기</button>
+            </div>
+            
+            <!-- 결과 표시 영역 -->
+            <div id="result" class="result">
+                <p id="resultText"></p>
+                <div>
+                    <button id="copyButton" class="button" onclick="copyText()">복사하기</button>
+                    <button id="shareButton" class="button" onclick="shareToKakao()">카카오톡 공유하기</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © L&S설비기술팀
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 현재 시간으로 설정
+        window.onload = function() {
+            setCurrentDateTime('para-time');
+            setCurrentDateTime('trouble-time');
+            setCurrentDateTime('trouble-complete');
+        };
+        
+        // 현재 시간 설정 함수
+        function setCurrentDateTime(elementId) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const dateTimeValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById(elementId).value = dateTimeValue;
+        }
+        
+        // 탭 전환 함수
+        function switchTab(formId) {
+            // 모든 탭과 폼 비활성화
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // 선택된 탭과 폼 활성화
+            if (formId === 'parameterForm') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('parameterForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('troubleForm').classList.add('active');
+            }
+            
+            // 결과 숨기기
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        // 날짜 형식화 함수
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            
+            const date = new Date(dateTimeStr);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            const ampm = hours >= 12 ? '오후' : '오전';
+            const hour12 = hours % 12 || 12;
+            
+            return `${year}년 ${month}월 ${day}일 ${ampm} ${hour12}:${minutes}`;
+        }
+        
+        // 파라미터 변경 양식 생성 함수
+        function generateParameterText() {
+            const machine = document.getElementById('para-machine').value;
+            const process = document.getElementById('para-process').value;
+            const time = formatDateTime(document.getElementById('para-time').value);
+            const parameter = document.getElementById('para-parameter').value;
+            const before = document.getElementById('para-before').value;
+            const after = document.getElementById('para-after').value;
+            const worker = document.getElementById('para-worker').value;
+            const reason = document.getElementById('para-reason').value;
+            
+            let text = `■ 파라미터, IP 변경 공유\n`;
+            text += `1. 호기 : ${machine}\n`;
+            text += `2. 공정 : ${process}\n`;
+            text += `3. 변경시간 : ${time}\n`;
+            text += `4. 변경Para : ${parameter}\n`;
+            text += `5. 이전값 : ${before}\n`;
+            text += `6. 변경값 : ${after}\n`;
+            text += `7. 변경자 : ${worker}\n`;
+            text += `8. 변경사유 : ${reason}`;
+            
+            // 결과 표시
+            document.getElementById('resultText').innerText = text;
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        // 부동내역 양식 생성 함수
+        function generateTroubleText() {
+            const type = document.getElementById('trouble-type').value;
+            const machine = document.getElementById('trouble-machine').value;
+            const process = document.getElementById('trouble-process').value;
+            const time = formatDateTime(document.getElementById('trouble-time').value);
+            const complete = formatDateTime(document.getElementById('trouble-complete').value);
+            const worker = document.getElementById('trouble-worker').value;
+            const problem = document.getElementById('trouble-problem').value;
+            const action = document.getElementById('trouble-action').value;
+            
+            let text = `[부동&작업 공유]\n`;
+            text += `종류: ${type}\n`;
+            text += `호기: ${machine}\n`;
+            text += `공정: ${process}\n`;
+            text += `발생시간: ${time}\n`;
+            text += `조치완료: ${complete}\n`;
+            text += `작업자: ${worker}\n`;
+            text += `현상: ${problem}\n`;
+            text += `조치: ${action}`;
+            
+            // 결과 표시
+            document.getElementById('resultText').innerText = text;
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        // 텍스트 복사 함수
+        function copyText() {
+            const text = document.getElementById('resultText').innerText;
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('텍스트가 클립보드에 복사되었습니다.');
+                })
+                .catch(err => {
+                    console.error('클립보드 복사 실패:', err);
+                    alert('클립보드 복사에 실패했습니다. 수동으로 텍스트를 선택하여 복사하세요.');
+                });
+        }
+        
+        // 카카오톡 공유하기 함수
+        function shareToKakao() {
+            const text = document.getElementById('resultText').innerText;
+            
+            if (navigator.share) {
+                // 웹 공유 API 사용 (모바일에서 주로 지원)
+                navigator.share({
+                    title: 'ESMI2 JF2 공유 내용',
+                    text: text
+                })
+                .catch(err => {
+                    console.error('공유하기 실패:', err);
+                    fallbackShare(text);
+                });
+            } else {
+                // 대체 공유 방법
+                fallbackShare(text);
+            }
+        }
+        
+        // 대체 공유 방법
+        function fallbackShare(text) {
+            // 클립보드에 복사
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('텍스트가 클립보드에 복사되었습니다. 카카오톡에 붙여넣기 하세요.');
+                    
+                    // 카카오톡 앱 열기 시도 (모바일)
+                    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                        window.location.href = 'kakaotalk://';
+                    }
+                })
+                .catch(err => {
+                    console.error('클립보드 복사 실패:', err);
+                    alert('클립보드 복사에 실패했습니다. 수동으로 텍스트를 선택하여 복사하세요.');
+                });
+        }
+    </script>
+</body>
+</html>
