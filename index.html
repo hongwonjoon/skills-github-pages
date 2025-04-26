@@ -102,18 +102,13 @@
             margin-right: 10px;
             background-color: #28a745;
         }
-        #shareButton {
-            background-color: #4267B2;
-            color: white;
-        }
     </style>
-    <!-- 카카오 SDK 제거 - Web Share API 사용 -->
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>ESMI2 JF2 파라변경이력 부동내역 양식</h1>
-            <p>Parameter 변경이력 및 부동&작업내역 양식 입력</p>
+            <h1>ESMI2 JF2 파라변경이력 부동내역 추출기</h1>
+            <p>Parameter 변경이력 및 부동&작업내역 자동 양식 생성</p>
         </div>
         
         <div class="tab-container">
@@ -163,7 +158,10 @@
             <div id="troubleForm" class="form">
                 <div class="form-group">
                     <label for="trouble-type">종류 :</label>
-                    <input type="text" id="trouble-type" placeholder="종류 입력">                    
+                    <select id="trouble-type">
+                        <option value="부동">부동</option>
+                        <option value="작업">작업</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="trouble-machine">호기 :</label>
@@ -201,7 +199,7 @@
                 <p id="resultText"></p>
                 <div>
                     <button id="copyButton" class="button" onclick="copyText()">복사하기</button>
-                    <button id="shareButton" class="button" onclick="shareContent()">공유하기</button>
+                    <button id="shareButton" class="button" onclick="shareToKakao()">카카오톡 공유하기</button>
                 </div>
             </div>
         </div>
@@ -212,7 +210,7 @@
     </div>
 
     <script>
-        // 페이지 로드 시 현재 시간 설정
+        // 페이지 로드 시 현재 시간으로 설정
         window.onload = function() {
             setCurrentDateTime('para-time');
             setCurrentDateTime('trouble-time');
@@ -337,36 +335,37 @@
                 });
         }
         
-        // 공유하기 함수
-        function shareContent() {
+        // 카카오톡 공유하기 함수
+        function shareToKakao() {
             const text = document.getElementById('resultText').innerText;
-            const title = 'ESMI2 JF2 공유 내용';
             
-            // Web Share API 지원 확인
             if (navigator.share) {
+                // 웹 공유 API 사용 (모바일에서 주로 지원)
                 navigator.share({
-                    title: title,
+                    title: 'ESMI2 JF2 공유 내용',
                     text: text
                 })
-                .then(() => {
-                    console.log('공유 성공');
-                })
-                .catch((error) => {
-                    console.log('공유 실패:', error);
-                    // 공유 실패 시 클립보드에 복사
-                    fallbackToCopy(text);
+                .catch(err => {
+                    console.error('공유하기 실패:', err);
+                    fallbackShare(text);
                 });
             } else {
-                // Web Share API를 지원하지 않는 경우 클립보드에 복사
-                fallbackToCopy(text);
+                // 대체 공유 방법
+                fallbackShare(text);
             }
         }
         
-        // 클립보드 복사 대체 방법
-        function fallbackToCopy(text) {
+        // 대체 공유 방법
+        function fallbackShare(text) {
+            // 클립보드에 복사
             navigator.clipboard.writeText(text)
                 .then(() => {
-                    alert('텍스트가 클립보드에 복사되었습니다.');
+                    alert('텍스트가 클립보드에 복사되었습니다. 카카오톡에 붙여넣기 하세요.');
+                    
+                    // 카카오톡 앱 열기 시도 (모바일)
+                    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                        window.location.href = 'kakaotalk://';
+                    }
                 })
                 .catch(err => {
                     console.error('클립보드 복사 실패:', err);
