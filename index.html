@@ -126,11 +126,29 @@
             <div id="parameterForm" class="form active">
                 <div class="form-group">
                     <label for="para-machine">1. 호기 :</label>
-                    <input type="text" id="para-machine" placeholder="예: 3-5">
+                    <select id="para-machine">
+                        <option value="3-1">3-1</option>
+                        <option value="3-2">3-2</option>
+                        <option value="3-3">3-3</option>
+                        <option value="3-4">3-4</option>
+                        <option value="3-5">3-5</option>
+                        <option value="4-1">4-1</option>
+                        <option value="4-2">4-2</option>
+                        <option value="4-3">4-3</option>
+                        <option value="4-4">4-4</option>
+                        <option value="4-5">4-5</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="para-process">2. 공정 :</label>
-                    <input type="text" id="para-process" placeholder="공정명 입력">
+                    <select id="para-process">
+                        <option value="공급부">공급부</option>
+                        <option value="Lamination">Lamination</option>
+                        <option value="Stacking">Stacking</option>
+                        <option value="Halfcell">Halfcell</option>
+                        <option value="Taping">Taping</option>
+                        <option value="Inspection">Inspection</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="para-time">3. 변경시간 :</label>
@@ -163,15 +181,33 @@
             <div id="troubleForm" class="form">
                 <div class="form-group">
                     <label for="trouble-type">종류 :</label>
-                    <input type="text" id="trouble-type" placeholder="종류 입력">                    
+                    <input type="text" id="trouble-type" placeholder="예: BM/PD/재료교체 등">                    
                 </div>
                 <div class="form-group">
                     <label for="trouble-machine">호기 :</label>
-                    <input type="text" id="trouble-machine" placeholder="예: 3-5">
+                    <select id="trouble-machine">
+                        <option value="3-1">3-1</option>
+                        <option value="3-2">3-2</option>
+                        <option value="3-3">3-3</option>
+                        <option value="3-4">3-4</option>
+                        <option value="3-5">3-5</option>
+                        <option value="4-1">4-1</option>
+                        <option value="4-2">4-2</option>
+                        <option value="4-3">4-3</option>
+                        <option value="4-4">4-4</option>
+                        <option value="4-5">4-5</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="trouble-process">공정 :</label>
-                    <input type="text" id="trouble-process" placeholder="공정명 입력">
+                    <select id="trouble-process">
+                        <option value="공급부">공급부</option>
+                        <option value="Lamination">Lamination</option>
+                        <option value="Stacking">Stacking</option>
+                        <option value="Halfcell">Halfcell</option>
+                        <option value="Taping">Taping</option>
+                        <option value="Inspection">Inspection</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="trouble-time">발생시간 :</label>
@@ -207,7 +243,7 @@
         </div>
         
         <div class="footer">
-            © L&S설비기술팀
+            @
         </div>
     </div>
 
